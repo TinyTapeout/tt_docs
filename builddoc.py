@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-import glob
 import argparse
 import yaml
-import os
 import logging
 import sys
-import subprocess
 from project_urls import project_urls
 from git_utils import fetch_file_from_git
 
@@ -17,6 +14,7 @@ def build_header():
         doc_header = fh.read()
     with open(markdown_doc, 'w') as fh:
         fh.write(doc_header)
+
 
 def build_doc(git_url):
     info = fetch_file_from_git(git_url, 'info.yaml')
