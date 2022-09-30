@@ -58,6 +58,9 @@ def build_doc(git_url):
             fh.write("\n\pagebreak\n")
         except IndexError as e:
             logging.error(e)
+            return
+        
+        return 1
 
 
 if __name__ == '__main__':
@@ -66,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
     args = parser.parse_args()
     # setup log
-    log_format = logging.Formatter('%(message)s')
+    log_format = logging.Formatter('%(asctime)s - %(module)-15s - %(levelname)-8s - %(message)s')
     # configure the client logging
     log = logging.getLogger('')
     # has to be set to debug as is the root logger
@@ -79,8 +82,15 @@ if __name__ == '__main__':
     log.addHandler(ch)
 
     build_header()
+    success = 0
     for number, project_url in enumerate(project_urls):
+        # some problematic ones
+        if project_url in ["https://github.com/ElectricPotato/tinytapeout-hello-world-uart"]:
+            logging.warning("skipping {}".format(number, project_url))
+            continue
         logging.info("building docs for project # {} : {}".format(number, project_url))
-        build_doc(project_url)
-        if number > 5:
-            break
+        build_ok = build_doc(project_url)
+        if build_ok is not None:
+            success += 1
+    
+    logging.info("{} of {} built OK!".format(success, number))
