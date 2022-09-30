@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import yaml
 import logging
 import sys
@@ -48,7 +49,7 @@ def build_doc(number, git_url):
             if 'svg' not in picture_name:
                 # fetch the file
                 picture_data = fetch_file_from_git(git_url, picture_name)
-                picture_filename = '{}{}'.format(number, picture_name)
+                picture_filename = '{}{}'.format(number, os.path.basename(picture_name))
                 with open(picture_filename , 'wb') as fpic:
                     fpic.write(picture_data)
                 yaml_data['project']['picture_link'] = '![picture]({})'.format(picture_filename)
