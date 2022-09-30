@@ -82,5 +82,3 @@ if __name__ == '__main__':
     for number, project_url in enumerate(project_urls):
         logging.info("building docs for project # {} : {}".format(number, project_url))
         build_doc(project_url)
-        if number > 5:
-            break
