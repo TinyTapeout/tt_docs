@@ -59,8 +59,8 @@ def build_doc(git_url):
         except IndexError as e:
             logging.error(e)
             return
-        
-        return 1
+
+        return True
 
 
 if __name__ == '__main__':
@@ -86,11 +86,11 @@ if __name__ == '__main__':
     for number, project_url in enumerate(project_urls):
         # some problematic ones
         if project_url in ["https://github.com/ElectricPotato/tinytapeout-hello-world-uart"]:
-            logging.warning("skipping {}".format(number, project_url))
+            logging.warning("skipping # {} : {}".format(number, project_url))
             continue
         logging.info("building docs for project # {} : {}".format(number, project_url))
         build_ok = build_doc(project_url)
         if build_ok is not None:
             success += 1
-    
+
     logging.info("{} of {} built OK!".format(success, number))
