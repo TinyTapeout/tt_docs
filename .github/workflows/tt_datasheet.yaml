@@ -48,8 +48,22 @@ jobs:
       run: ./pandoc.sh
 
     # commit to the repo
-    - name: commit cache
-      uses: EndBug/add-and-commit@v9 
-      with: 
-        add: "['tt01.md', 'tt01.pdf']"
-        message: 'datasheet updated by action'
+    #- name: commit cache
+    #  uses: EndBug/add-and-commit@v9 
+    #  with: 
+    #    add: "['tt01.md', 'tt01.pdf']"
+    #    message: 'datasheet updated by action'
+
+    # archive the PDF
+    - name: Archive PDF
+      uses: actions/upload-artifact@v2
+      with:
+          name: PDF
+          path: tt01.pdf
+
+    # archive the MD
+    - name: Archive MD
+      uses: actions/upload-artifact@v2
+      with:
+          name: MD
+          path: tt01.md
