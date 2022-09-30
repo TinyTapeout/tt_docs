@@ -94,8 +94,7 @@ if __name__ == '__main__':
     success = 0
     for number, project_url in enumerate(project_urls):
         # some problematic ones
-        if project_url in ["https://github.com/ElectricPotato/tinytapeout-hello-world-uart",
-                           "https://github.com/maehw/wokwi-verilog-gds-lowspeed-tiny-uart"]:
+        if project_url in ["https://github.com/ElectricPotato/tinytapeout-hello-world-uart"]:
             logging.warning("skipping # {} : {}".format(number, project_url))
             continue
         logging.info("building docs for project # {} : {}".format(number, project_url))
