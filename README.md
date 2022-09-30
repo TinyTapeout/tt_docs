@@ -2,7 +2,7 @@
 
 See https://tinytapeout.com for details on the project.
 
-To run the tool locally or have a fork work, you need the GH_USERNAME and GH_TOKEN set for your repo.
+To run the tool locally or have a fork's GitHub action work, you need the GH_USERNAME and GH_TOKEN set in your environment.
 
 GH_USERNAME should be set to your GitHub username.
 
