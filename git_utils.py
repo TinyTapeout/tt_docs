@@ -43,6 +43,6 @@ def fetch_file_from_git(git_url, path):
 
     file_content_encoding = data.get('encoding')
     if file_content_encoding == 'base64':
-        file_content = base64.b64decode(file_content).decode()
+        file_content = base64.b64decode(file_content)
 
     return file_content
