@@ -40,7 +40,7 @@ jobs:
 
     # convert to PDF
     - name: Pandoc deps
-      run: sudo apt-get install -y pandoc xelatex
+      run: sudo apt-get install -y pandoc texlive-xetex
 
     - name: convert pdf
       run: ./pandoc.sh
