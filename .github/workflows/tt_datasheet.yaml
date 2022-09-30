@@ -51,5 +51,7 @@ jobs:
     - name: commit cache
       uses: EndBug/add-and-commit@v9 
       with: 
-        add: ['tt01.md', 'tt01.pdf']
+        add:
+            'tt01.md'
+            'tt01.pdf'
         message: 'datasheet updated by action'
