@@ -17,3 +17,7 @@ And then source it before running the tool.
 
 For GitHub actions, go to your fork's settings, choose secrets, then actions. 
 Click the 'new repository secret' button and set GH_USERNAME and GH_TOKEN to be your username and the token.
+
+## Making PRs
+
+Please run the ./lint.sh script to lint your modification before making a PR.
