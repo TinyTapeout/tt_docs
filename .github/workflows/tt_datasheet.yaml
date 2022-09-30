@@ -21,6 +21,10 @@ jobs:
       with:
         python-version: '3.7.7' # install the python version needed
 
+    # lint
+    - name: lint
+      run: ./lint.sh
+
     # python deps from reqirements file, use a marketplace action
     - name: Install Python dependencies
       uses: py-actions/py-dependency-install@v2
@@ -32,6 +36,11 @@ jobs:
       run: python ./builddoc.py
 
     # convert to PDF
+    - name: Pandoc deps
+      run: sudo apt-get install -y pandoc xelatex
+
+    - name: convert pdf
+      run: ./pandoc.sh
 
     # commit to the repo
     - name: commit cache
