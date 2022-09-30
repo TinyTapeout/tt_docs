@@ -7,6 +7,9 @@ on:
     - cron: '0 4 * * *' # At 4:00 UTC everyday
 jobs:
   build_datasheet:
+    env:
+        GH_TOKEN:       ${{ secrets.GH_TOKEN }}
+        GH_USERNAME:    ${{ secrets.GH_USERNAME }}
 
     # ubuntu
     runs-on: ubuntu-latest
