@@ -1,80 +1,88 @@
 #!/usr/bin/env python3
 import glob
+import argparse
 import yaml
 import os
+import logging
+import sys
 import subprocess
 from project_urls import project_urls
+from git_utils import fetch_file_from_git
 
-infos = glob.glob('./*/info.yaml')
+markdown_doc = 'tt01.md'
 
-doc_string = """
-# {title}
 
-{picture_link}
+def build_header():
+    with open("header.txt") as fh:
+        doc_header = fh.read()
+    with open(markdown_doc, 'w') as fh:
+        fh.write(doc_header)
 
-* Author {author}
-* Description {description}
-* [GitHub project]({git_url})
-* [Wokwi project]({wokwi_url})
-* [Extra docs]({doc_link})
-* Clock {clock_hz} Hz
-* External hardware {external_hw}
+def build_doc(git_url):
+    info = fetch_file_from_git(git_url, 'info.yaml')
+    if info is None:
+        logging.error("file not found in repo")
+        return
 
-## How it works
+    # parse the yaml
+    try:
+        yaml_data = (yaml.safe_load(info))
+        # only bother trying if the author field has been filled in
+        author = yaml_data['project']['author']
+        if author == '':
+            logging.info("yaml is the default - skipping")
+            return
+    except yaml.YAMLError as exc:
+        logging.error(exc)
+        return
 
-{how_it_works}
+    with open("template.md") as fh:
+        doc_string = fh.read()
 
-## How to test
+    with open(markdown_doc, 'a') as fh:
+        # build up some new elements in the dict
+        yaml_data['project']['picture_link'] = ''
+        """
+        if yaml_data['project']['picture']:
+            # skip SVG for now
+            if 'svg' not in yaml_data['project']['picture']:
+                yaml_data['project']['picture_link'] = '![picture]({})'.format(os.path.join(os.path.dirname(info), yaml_data['project']['picture']))
+        """
+        yaml_data['project']['wokwi_url'] = 'https://wokwi.com/projects/' + str(yaml_data['project']['wokwi_id'])
 
-{how_to_test}
+        # get git url
+        yaml_data['project']['git_url'] = git_url
 
-## IO
-
-| # | Input        | Output       |
-|---|--------------|--------------|
-| 0 | {inputs[0]}  | {outputs[0]} |
-| 1 | {inputs[1]}  | {outputs[1]} |
-| 2 | {inputs[2]}  | {outputs[2]} |
-| 3 | {inputs[3]}  | {outputs[3]} |
-| 4 | {inputs[4]}  | {outputs[4]} |
-| 5 | {inputs[5]}  | {outputs[5]} |
-| 6 | {inputs[6]}  | {outputs[6]} |
-| 7 | {inputs[7]}  | {outputs[7]} |
-
-"""
-
-print("""---
-  header-includes:
-    - \hypersetup{colorlinks=false,
-              allbordercolors={0 0 0},
-              pdfborderstyle={/S/U/W 1}}
-  ---""")
-
-for info in infos:
-    with open(info, "r") as stream:
+        # now build the doc & print it
         try:
-            data = (yaml.safe_load(stream))
-            author = data['project']['author']
-            if author != '':
-                # build up some new elements in the dict
-                data['project']['picture_link'] = ''
-                if data['project']['picture']:
-                    if 'svg' not in data['project']['picture']:
-                        data['project']['picture_link'] = '![picture]({})'.format(os.path.join(os.path.dirname(info), data['project']['picture']))
-                data['project']['wokwi_url'] = 'https://wokwi.com/projects/' + str(data['project']['wokwi_id'])
+            doc = doc_string.format(**yaml_data['project'])
+            fh.write(doc)
+            fh.write("\n\pagebreak\n")
+        except IndexError as e:
+            logging.error(e)
 
-                # get git url
-                repo_name = os.path.dirname(info)
-                remote = subprocess.check_output("git -C {} config --get remote.origin.url".format(repo_name), shell=True).decode('utf-8')
-                data['project']['git_url'] = remote
-                
 
-                # now build the doc & print it
-                try:
-                    doc = doc_string.format(**data['project'])
-                    print(doc)
-                except IndexError as e:
-                    pass
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="TT docs")
 
-        except yaml.YAMLError as exc:
-            print(exc)
+    parser.add_argument('--debug', help="debug logging", action="store_const", dest="loglevel", const=logging.DEBUG, default=logging.INFO)
+    args = parser.parse_args()
+    # setup log
+    log_format = logging.Formatter('%(message)s')
+    # configure the client logging
+    log = logging.getLogger('')
+    # has to be set to debug as is the root logger
+    log.setLevel(args.loglevel)
+
+    # create console handler and set level to info
+    ch = logging.StreamHandler(sys.stdout)
+    # create formatter for console
+    ch.setFormatter(log_format)
+    log.addHandler(ch)
+
+    build_header()
+    for number, project_url in enumerate(project_urls):
+        logging.info("building docs for project # {} : {}".format(number, project_url))
+        build_doc(project_url)
+        if number > 5:
+            break
