@@ -4,10 +4,10 @@ import os
 import yaml
 import logging
 import sys
-from project_urls import project_urls
+from tt02_projects import project_urls
 from git_utils import fetch_file_from_git
 
-markdown_doc = 'tt01.md'
+markdown_doc = 'tt02.md'
 
 
 def build_header():
@@ -27,7 +27,7 @@ def build_doc(number, git_url):
     try:
         yaml_data = (yaml.safe_load(info))
         # only bother trying if the author field has been filled in
-        author = yaml_data['project']['author']
+        author = yaml_data['documentation']['author']
         if author == '':
             logging.info("yaml is the default - skipping")
             return
@@ -40,28 +40,31 @@ def build_doc(number, git_url):
 
     with open(markdown_doc, 'a') as fh:
         # build up some new elements in the dict
-        yaml_data['project']['picture_link'] = ''
+        yaml_data['documentation']['picture_link'] = ''
 
         # handle pictures
-        if yaml_data['project']['picture']:
+        if yaml_data['documentation']['picture']:
             # skip SVG for now, not supported by pandoc
-            picture_name = yaml_data['project']['picture']
+            picture_name = yaml_data['documentation']['picture']
             if 'svg' not in picture_name:
                 # fetch the file
                 picture_data = fetch_file_from_git(git_url, picture_name)
                 picture_filename = '{}{}'.format(number, os.path.basename(picture_name))
-                with open(picture_filename , 'wb') as fpic:
-                    fpic.write(picture_data)
-                yaml_data['project']['picture_link'] = '![picture]({})'.format(picture_filename)
+                if picture_data is None:
+                    logging.error("picture invalid") 
+                else:
+                    with open(picture_filename , 'wb') as fpic:
+                        fpic.write(picture_data)
+                    yaml_data['documentation']['picture_link'] = '![picture]({})'.format(picture_filename)
 
-        yaml_data['project']['wokwi_url'] = 'https://wokwi.com/projects/' + str(yaml_data['project']['wokwi_id'])
+        yaml_data['documentation']['wokwi_url'] = 'https://wokwi.com/projects/' + str(yaml_data['project']['wokwi_id'])
 
         # get git url
-        yaml_data['project']['git_url'] = git_url
+        yaml_data['documentation']['git_url'] = git_url
 
         # now build the doc & print it
         try:
-            doc = doc_string.format(**yaml_data['project'])
+            doc = doc_string.format(**yaml_data['documentation'])
             fh.write(doc)
             fh.write("\n\pagebreak\n")
         except IndexError as e:
