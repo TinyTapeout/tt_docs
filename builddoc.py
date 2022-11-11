@@ -51,7 +51,7 @@ def build_doc(number, git_url):
                 picture_data = fetch_file_from_git(git_url, picture_name)
                 picture_filename = '{}{}'.format(number, os.path.basename(picture_name))
                 if picture_data is None:
-                    logging.error("picture invalid") 
+                    logging.error("picture invalid")
                 else:
                     with open(picture_filename , 'wb') as fpic:
                         fpic.write(picture_data)
